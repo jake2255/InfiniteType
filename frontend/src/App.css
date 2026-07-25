@@ -170,13 +170,14 @@ body {
   margin-top: 1rem;
 }
 
-/* --- The Core Layout Changes --- */
 
+
+/* Symmetrical Wheel Layout */
 .wheel-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 3rem;
+  gap: 4rem;
   width: 100%;
   max-width: 900px;
   height: 120px;
@@ -185,39 +186,62 @@ body {
 }
 
 .wheel-slot {
-  font-size: 2rem;
   font-family: 'Courier New', Courier, monospace;
-  transition: all 0.25s ease-in-out;
   text-align: center;
   min-width: 200px;
 }
 
-/* Faded Out Left Slot */
-.slot-previous {
+/* Unified style for both left and right side slots */
+.slot-side {
   color: var(--text-main);
-  opacity: 0.25;
-  transform: scale(0.8) translateX(-20px);
+  opacity: 0.4;
+  font-size: 2rem;
+  transform: scale(0.85);
+  transition: all 0.2s ease-in-out;
 }
 
-/* Focused Center Slot */
+/* Main Active Center Target */
 .slot-current {
-  color: var(--text-active);
-  font-size: 2.8rem;
+  font-size: 3rem;
   font-weight: bold;
-  position: relative;
-  display: inline-block;
   transform: scale(1);
+  letter-spacing: 2px;
+  display: flex;
+  justify-content: center;
+  position: relative;
 }
 
 .underline-glow {
+  position: absolute;
+  bottom: -8px;
+  left: 0;
   height: 3px;
   background-color: var(--accent-color);
   width: 100%;
-  margin-top: 4px;
   box-shadow: 0px 0px 10px var(--accent-color);
   border-radius: 2px;
 }
 
+/* Character Highlights */
+.char {
+  transition: color 0.1s ease;
+}
+
+.char.untyped {
+  color: var(--text-active);
+  opacity: 0.6;
+}
+
+.char.correct {
+  color: #ffffff;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+  opacity: 1;
+}
+
+.char.incorrect {
+  color: #ca4754;
+  opacity: 1;
+}
 /* Waiting Right Slot */
 .slot-next {
   color: var(--text-main);
