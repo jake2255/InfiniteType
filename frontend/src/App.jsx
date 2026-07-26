@@ -16,6 +16,7 @@ function App() {
     const [sessionWords, setSessionWords] = useState(0);
     const [previousWord, setPreviousWord] = useState('');
     const [activeModal, setActiveModal] = useState(null);
+	const [user, setUser] = useState(null);
     const inputRef = useRef(null);
 
     useEffect(() => {
@@ -89,7 +90,7 @@ function App() {
                     <span className="stat-value">{sessionWords}</span>
                 </div>
                 <div className="stat-box">
-                    <span className="stat-label">Lifetime Total</span>
+                    <span className="stat-label">Lifetime</span>
                     <span className="stat-value">{lifetimeWords}</span>
                 </div>
             </div>
@@ -129,6 +130,9 @@ function App() {
             <AccountModal 
                 isOpen={activeModal === 'account'} 
                 onClose={() => setActiveModal(null)} 
+                user={user}
+                setUser={setUser}
+                setLifetimeWords={setLifetimeWords}
             />
 
         </div>
