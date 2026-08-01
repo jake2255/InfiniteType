@@ -1,0 +1,1 @@
+# script to save words to database
