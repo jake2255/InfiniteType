@@ -35,11 +35,10 @@ function AccountModal({ isOpen, onClose, user, setUser, setLifetimeWords }) {
                 if (authMode === 'login') {
                     localStorage.setItem('inf_type_token', data.token);
                     localStorage.setItem('inf_type_user', data.username);
+                    localStorage.setItem('inf_type_lifetime_words', data.lifetime_words);
                     
                     setUser(data.username);
-                    if (data.lifetime_words) {
-                        setLifetimeWords(data.lifetime_words);
-                    }
+                    setLifetimeWords(data.lifetime_words);
                     
                     onClose();
                     clearForm();

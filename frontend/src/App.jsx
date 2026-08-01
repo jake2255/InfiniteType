@@ -4,9 +4,9 @@ import AccountModal from './components/AccountModal';
 import './App.css';
 
 const WORD_POOL = [
-    "the", "cool", "breeze", "whispered", "through", "the", "trees", "as", "i", "typed",
-    "infinite", "loops", "are", "fun", "until", "they", "crash", "your", "browser", "zen",
-    "javascript", "python", "django", "react", "keyboard", "spacebar", "flow", "rhythm"
+    "the", "cool", "breeze", "the", "trees", "as",
+     "loops", "are", "fun", "until", "they", "crash", "your", "browser", "zen",
+     "python", "django", "react", "keyboard", "spacebar", "flow", "rate"
 ];
 
 function App() {
@@ -16,14 +16,64 @@ function App() {
     const [sessionWords, setSessionWords] = useState(0);
     const [previousWord, setPreviousWord] = useState('');
     const [activeModal, setActiveModal] = useState(null);
-	const [user, setUser] = useState(null);
+    const [user, setUser] = useState(null);
+    const unsavedWordCount = useRef(0);
     const inputRef = useRef(null);
-
+    
+    // will have to change when pulling words from backend
     useEffect(() => {
         const initialQueue = Array.from({ length: 5 }, () => 
             WORD_POOL[Math.floor(Math.random() * WORD_POOL.length)]
         );
         setWordQueue(initialQueue);
+        
+        const cachedUser = localStorage.getItem('inf_type_user');
+        if (cachedUser) setUser(cachedUser);
+        
+        const cachedWordCount = localStorage.getItem('inf_type_lifetime_words');
+        if (cachedWordCount) setLifetimeWords(parseInt(cachedWordCount, 10));
+    }, []);
+
+    const syncWordsToBackend = async () => {
+        const token = localStorage.getItem('inf_type_token');
+        const wordCountToSend = unsavedWordCount.current;
+
+        if (!token || wordCountToSend <= 0) return;
+
+        unsavedWordCount.current = 0;
+
+        try {
+            const response = await fetch('http://127.0.0.1:8000/api/update_count/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Token ${token}`
+                },
+                body: JSON.stringify({ words_typed: wordCountToSend }),
+                keepalive: true
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok && data.lifetime_words !== undefined) {
+                setLifetimeWords(data.lifetime_words);
+                localStorage.setItem('inf_type_lifetime_words', data.lifetime_words);
+            } else {
+                unsavedWordCount.current += wordCountToSend;
+            }
+        } catch (err) {
+            console.error("Sync error:", err);
+            unsavedWordCount.current += wordCountToSend;
+        }
+    };
+
+    useEffect(() => {
+        const handleExit = () => syncWordsToBackend();
+        window.addEventListener('beforeunload', handleExit);
+
+        return () => {
+            window.removeEventListener('beforeunload', handleExit);
+        };
     }, []);
 
     const handleInputChange = (e) => {
@@ -36,22 +86,31 @@ function App() {
             if (trimmedInput === currentTargetWord) {
                 setSessionWords(prev => prev + 1);
                 setLifetimeWords(prev => prev + 1);
+                
+                unsavedWordCount.current += 1;
+
+                if (unsavedWordCount.current >= 5) {
+                    syncWordsToBackend();
+                }
             }
 
             setPreviousWord(currentTargetWord);
-
             setWordQueue(prevQueue => {
                 const updatedQueue = [...prevQueue.slice(1)];
                 const nextNewWord = WORD_POOL[Math.floor(Math.random() * WORD_POOL.length)];
                 return [...updatedQueue, nextNewWord];
             });
-
             setUserInput('');
         } else {
             if (value.length <= (wordQueue[0]?.length || 0)) {
                 setUserInput(value);
             }
         }
+    };
+
+    const openModal = (modalName) => {
+        syncWordsToBackend(); 
+        setActiveModal(modalName);
     };
 
     const focusInput = () => {
@@ -74,16 +133,14 @@ function App() {
     return (
         <div className="app-container" onClick={focusInput}>
             
-            {/* --- Top Navigation --- */}
             <header className="game-header" onClick={(e) => e.stopPropagation()}>
                 <div className="logo">InfiniteType</div>
                 <div className="nav-buttons">
-                    <button onClick={() => setActiveModal('leaderboard')}>Leaderboard</button>
-                    <button onClick={() => setActiveModal('account')}>Account</button>
+                    <button onClick={() => openModal('leaderboard')}>Leaderboard</button>
+                    <button onClick={() => openModal('account')}>{user || 'Account'}</button>
                 </div>
             </header>
 
-            {/* --- Score Dashboard --- */}
             <div className="stats-dashboard">
                 <div className="stat-box">
                     <span className="stat-label">Session</span>
@@ -95,7 +152,6 @@ function App() {
                 </div>
             </div>
 
-            {/* --- Main Typing Area --- */}
             <main className="typing-area">
                 <input
                     ref={inputRef}
@@ -105,7 +161,6 @@ function App() {
                     className="hidden-input"
                     autoFocus
                 />
-                
                 <div className="wheel-container">
                     <div className="wheel-slot slot-side">{previousWord}</div>
                     <div className="wheel-slot slot-current">
@@ -116,12 +171,10 @@ function App() {
                 </div>
             </main>
 
-            {/* --- Footer --- */}
             <footer className="game-footer">
                 <p>Press space after each word.</p>
             </footer>
 
-            {/* --- Modular Modals --- */}
             <LeaderboardModal 
                 isOpen={activeModal === 'leaderboard'} 
                 onClose={() => setActiveModal(null)} 
@@ -134,7 +187,6 @@ function App() {
                 setUser={setUser}
                 setLifetimeWords={setLifetimeWords}
             />
-
         </div>
     );
 }
