@@ -7,6 +7,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authtoken.models import Token
 from rest_framework.authentication import TokenAuthentication
 from django.contrib.auth import authenticate
+import random
 
 class RegisterUserView(APIView):
     permission_classes = [AllowAny]
@@ -39,6 +40,22 @@ class AccountLoginView(APIView):
             'username': username,
             'lifetime_words': lifetime_words,
         }, status=200)
+
+class GetRandomWordsView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        word_ids = list(Word.objects.values_list('id', flat=True))
+
+        sample_size = min(len(word_ids), 25)
+        if sample_size == 0:
+            return Response({'words': []}, status=200)
+
+        random_ids = random.sample(word_ids, sample_size)
+        random_words = list(Word.objects.filter(id__in=random_ids).values_list('word', flat=True))
+        random.shuffle(random_words)
+            
+        return Response({'words': random_words}, status=200)
 
 class LifetimeWordCountView(APIView):
     permission_classes = [IsAuthenticated]

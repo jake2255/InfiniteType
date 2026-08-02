@@ -3,12 +3,6 @@ import LeaderboardModal from './components/LeaderboardModal';
 import AccountModal from './components/AccountModal';
 import './App.css';
 
-const WORD_POOL = [
-    "the", "cool", "breeze", "the", "trees", "as",
-     "loops", "are", "fun", "until", "they", "crash", "your", "browser", "zen",
-     "python", "django", "react", "keyboard", "spacebar", "flow", "rate"
-];
-
 function App() {
     const [wordQueue, setWordQueue] = useState([]);
     const [userInput, setUserInput] = useState('');
@@ -20,19 +14,37 @@ function App() {
     const unsavedWordCount = useRef(0);
     const inputRef = useRef(null);
     
-    // will have to change when pulling words from backend
+    const fetchWords = async () => {
+        try {
+            const response = await fetch('http://127.0.0.1:8000/api/get_words/');
+            const data = await response.json();
+            return data.words || [];
+        } catch (err) {
+            console.error("Failed to fetch words from server:", err)
+            return []
+        }
+    };
+    
     useEffect(() => {
-        const initialQueue = Array.from({ length: 5 }, () => 
-            WORD_POOL[Math.floor(Math.random() * WORD_POOL.length)]
-        );
-        setWordQueue(initialQueue);
+        const initializeGame = async () => {
+            const newWords = await fetchWords();
+            if (newWords.length > 0) {
+                setWordQueue(newWords)
+            }
+        };
+    
+        initializeGame();
         
         const cachedUser = localStorage.getItem('inf_type_user');
-        if (cachedUser) setUser(cachedUser);
+        if (cachedUser) {
+            setUser(cachedUser);
+        }
         
         const cachedWordCount = localStorage.getItem('inf_type_lifetime_words');
-        if (cachedWordCount) setLifetimeWords(parseInt(cachedWordCount, 10));
-    }, []);
+        if (cachedWordCount) {
+            setLifetimeWords(parseInt(cachedWordCount, 10));
+        }
+    }, [])
 
     const syncWordsToBackend = async () => {
         const token = localStorage.getItem('inf_type_token');
@@ -86,21 +98,28 @@ function App() {
             if (trimmedInput === currentTargetWord) {
                 setSessionWords(prev => prev + 1);
                 setLifetimeWords(prev => prev + 1);
-                
                 unsavedWordCount.current += 1;
 
-                if (unsavedWordCount.current >= 5) {
+                if (unsavedWordCount.current >= 5) { // CHANGE 5 TO LARGER VALUE 
                     syncWordsToBackend();
                 }
             }
 
             setPreviousWord(currentTargetWord);
-            setWordQueue(prevQueue => {
-                const updatedQueue = [...prevQueue.slice(1)];
-                const nextNewWord = WORD_POOL[Math.floor(Math.random() * WORD_POOL.length)];
-                return [...updatedQueue, nextNewWord];
-            });
             setUserInput('');
+            
+            setWordQueue(prevQueue => {
+                const updatedQueue = prevQueue.slice(1);
+                
+                if (updatedQueue.length < 10) { // INCREASE BUFFER WAIT SIZE
+                    fetchWords().then(newWords => {
+                        if (newWords.length > 0) {
+                            setWordQueue(currentQueue => [...currentQueue, ...newWords]);
+                        }
+                    });
+                }
+                return updatedQueue;
+            });
         } else {
             if (value.length <= (wordQueue[0]?.length || 0)) {
                 setUserInput(value);
