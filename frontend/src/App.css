@@ -172,7 +172,6 @@ body {
 
 
 
-/* Symmetrical Wheel Layout */
 .wheel-container {
   display: flex;
   justify-content: center;
@@ -191,7 +190,6 @@ body {
   min-width: 200px;
 }
 
-/* Unified style for both left and right side slots */
 .slot-side {
   color: var(--text-main);
   opacity: 0.4;
@@ -222,7 +220,6 @@ body {
   border-radius: 2px;
 }
 
-/* Character Highlights */
 .char {
   transition: color 0.1s ease;
 }
@@ -249,3 +246,31 @@ body {
   transform: scale(0.9) translateX(20px);
 }
 
+
+.leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.leaderboard-table th, 
+.leaderboard-table td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.leaderboard-table th {
+    opacity: 0.6;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+}
+
+.rank-1 { color: #ffd700; font-weight: bold; } /* Gold */
+.rank-2 { color: #c0c0c0; font-weight: bold; } /* Silver */
+.rank-3 { color: #cd7f32; font-weight: bold; } /* Bronze */
+
+.words-col {
+    text-align: right;
+    font-family: monospace;
+}

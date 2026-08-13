@@ -6,4 +6,5 @@ urlpatterns = [
     path('login/', AccountLoginView.as_view(), name='account_login'),
     path('get_words/', GetRandomWordsView.as_view(), name='get_words'),
     path('update_count/', LifetimeWordCountView.as_view(), name='update_count'),
+    path('leaderboard/', GlobalLeaderboardView.as_view(), name='leaderboard'),
 ]

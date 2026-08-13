@@ -74,4 +74,19 @@ class LifetimeWordCountView(APIView):
         account.save()
 
         return Response({'lifetime_words': account.lifetime_words}, status=200)
-    
+
+class GlobalLeaderboardView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        top_accounts = Account.objects.select_related('user').order_by('-lifetime_words')[:5]
+        leaderboard_data = []
+        
+        for rank, account in enumerate(top_accounts, start=1):
+            leaderboard_data.append({
+                'rank': rank,
+                'username': account.user.username,
+                'lifetime_words': account.lifetime_words,
+            })
+
+        return Response({'leaderboard_data': leaderboard_data}, status=200)
