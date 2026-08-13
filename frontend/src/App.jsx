@@ -149,6 +149,9 @@ function App() {
         });
     };
 
+    const statLabel = user ? "Lifetime": "Session";
+    const statValue = user ? lifetimeWords : sessionWords;
+    
     return (
         <div className="app-container" onClick={focusInput}>
             
@@ -162,13 +165,18 @@ function App() {
 
             <div className="stats-dashboard">
                 <div className="stat-box">
-                    <span className="stat-label">Session</span>
-                    <span className="stat-value">{sessionWords}</span>
+                    <span className="stat-label">{statLabel} Total</span>
+                    <span className="stat-value">{statValue}</span>
                 </div>
-                <div className="stat-box">
-                    <span className="stat-label">Lifetime</span>
-                    <span className="stat-value">{lifetimeWords}</span>
-                </div>
+                
+                {/* {!user && (
+                    <p className="login-reminder">
+                        <button className="link-btn" onClick={() => openModal('account')}>
+                            Log in
+                        </button>{" "}
+                        to save your progress
+                    </p>
+                )} */}
             </div>
 
             <main className="typing-area">
