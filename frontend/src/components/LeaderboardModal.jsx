@@ -3,6 +3,7 @@ import './LeaderboardModal.css';
 
 function LeaderboardModal({ isOpen, onClose }) {
     const [leaderboard, setLeaderboard] = useState([]);
+    const [globalWords, setGlobalWords] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -24,9 +25,11 @@ function LeaderboardModal({ isOpen, onClose }) {
             }
             
             const list = data.leaderboard_data || [];
+            const total = data.global_word_count || 0;
 
             if (Array.isArray(list)) {
                 setLeaderboard(list);
+                setGlobalWords(total);
             } else {
                 setLeaderboard([]);
                 setError('Invalid data format received from server.');
@@ -46,7 +49,7 @@ function LeaderboardModal({ isOpen, onClose }) {
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                 <div className="modal-header">
-                    <h2>Global Leaderboard</h2>
+                    <h2>Leaderboard</h2>
                     <button className="modal-close-btn" onClick={onClose}>&times;</button>
                 </div>
 
@@ -55,34 +58,41 @@ function LeaderboardModal({ isOpen, onClose }) {
                 ) : error ? (
                     <div className="modal-status error">{error}</div>
                 ) : (
-                    <div className="table-wrapper">
-                        <table className="leaderboard-table">
-                            <thead>
-                                <tr>
-                                    <th>Rank</th>
-                                    <th>Typist</th>
-                                    <th className="text-right">Lifetime Words</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {Array.isArray(leaderboard) && leaderboard.length > 0 ? (
-                                    leaderboard.map((player) => (
-                                        <tr key={player.rank} className={`rank-row rank-${player.rank}`}>
-                                            <td className="rank-col">
-                                                <span className="rank-badge">#{player.rank}</span>
-                                            </td>
-                                            <td className="user-col">{player.username}</td>
-                                            <td className="words-col">{player.lifetime_words.toLocaleString()}</td>
-                                        </tr>
-                                    ))
-                                ) : (
+                    <>
+                        <div className="global-counter-banner">
+                            <span className="global-counter-label">Total Words From All Users</span>
+                            <span className="global-counter-value">{globalWords.toLocaleString()}</span>
+                        </div>
+                    
+                        <div className="table-wrapper">
+                            <table className="leaderboard-table">
+                                <thead>
                                     <tr>
-                                        <td colSpan="3" className="empty-row">No typists registered yet.</td>
+                                        <th>Rank</th>
+                                        <th>Typist</th>
+                                        <th className="text-right">Lifetime Words</th>
                                     </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody>
+                                    {Array.isArray(leaderboard) && leaderboard.length > 0 ? (
+                                        leaderboard.map((player) => (
+                                            <tr key={player.rank} className={`rank-row rank-${player.rank}`}>
+                                                <td className="rank-col">
+                                                    <span className="rank-badge">#{player.rank}</span>
+                                                </td>
+                                                <td className="user-col">{player.username}</td>
+                                                <td className="words-col">{player.lifetime_words.toLocaleString()}</td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="3" className="empty-row">No typists registered yet.</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </>
                 )}
             </div>
         </div>

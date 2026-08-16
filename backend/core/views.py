@@ -7,6 +7,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authtoken.models import Token
 from rest_framework.authentication import TokenAuthentication
 from django.contrib.auth import authenticate
+from django.db.models import Sum
 import random
 
 class RegisterUserView(APIView):
@@ -89,4 +90,10 @@ class GlobalLeaderboardView(APIView):
                 'lifetime_words': account.lifetime_words,
             })
 
-        return Response({'leaderboard_data': leaderboard_data}, status=200)
+        lifetime_aggregate = Account.objects.aggregate(total=Sum('lifetime_words'))   
+        global_word_count = lifetime_aggregate['total'] or 0
+
+        return Response({
+            'leaderboard_data': leaderboard_data, 
+            'global_word_count': global_word_count,
+        }, status=200)
