@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import './LeaderboardModal.css';
 
 function LeaderboardModal({ isOpen, onClose }) {
     const [leaderboard, setLeaderboard] = useState([]);
@@ -46,38 +47,42 @@ function LeaderboardModal({ isOpen, onClose }) {
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                 <div className="modal-header">
                     <h2>Global Leaderboard</h2>
-                    <button className="close-btn" onClick={onClose}>&times;</button>
+                    <button className="modal-close-btn" onClick={onClose}>&times;</button>
                 </div>
 
                 {isLoading ? (
-                    <div className="modal-status">Loading top typists...</div>
+                    <div className="modal-status">Fetching top typists...</div>
                 ) : error ? (
                     <div className="modal-status error">{error}</div>
                 ) : (
-                    <table className="leaderboard-table">
-                        <thead>
-                            <tr>
-                                <th>Rank</th>
-                                <th>Typist</th>
-                                <th>Lifetime Words</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {Array.isArray(leaderboard) && leaderboard.length > 0 ? (
-                                leaderboard.map((player) => (
-                                    <tr key={player.rank} className={player.rank <= 3 ? `top-rank rank-${player.rank}` : ''}>
-                                        <td className="rank-col">#{player.rank}</td>
-                                        <td className="user-col">{player.username}</td>
-                                        <td className="words-col">{player.lifetime_words.toLocaleString()}</td>
-                                    </tr>
-                                ))
-                            ) : (
+                    <div className="table-wrapper">
+                        <table className="leaderboard-table">
+                            <thead>
                                 <tr>
-                                    <td colSpan="3" style={{ textAlign: 'center' }}>No typists found yet.</td>
+                                    <th>Rank</th>
+                                    <th>Typist</th>
+                                    <th className="text-right">Lifetime Words</th>
                                 </tr>
-                            )}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {Array.isArray(leaderboard) && leaderboard.length > 0 ? (
+                                    leaderboard.map((player) => (
+                                        <tr key={player.rank} className={`rank-row rank-${player.rank}`}>
+                                            <td className="rank-col">
+                                                <span className="rank-badge">#{player.rank}</span>
+                                            </td>
+                                            <td className="user-col">{player.username}</td>
+                                            <td className="words-col">{player.lifetime_words.toLocaleString()}</td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan="3" className="empty-row">No typists registered yet.</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 )}
             </div>
         </div>

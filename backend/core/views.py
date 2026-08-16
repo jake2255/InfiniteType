@@ -17,7 +17,7 @@ class RegisterUserView(APIView):
         
         if serializer.is_valid():
             serializer.save()
-            return Response({"message": "successfully registered user"}, status=201) 
+            return Response({"message": "Successfully registered new user."}, status=201) 
                
         return Response(serializer.errors, status=400)
     
@@ -30,7 +30,7 @@ class AccountLoginView(APIView):
         user = authenticate(username=username, password=password)
         
         if not user:
-            return Response({"error": "failed to login"}, status=401) 
+            return Response({"error": "Incorrect credentials, please try again."}, status=401) 
             
         token, created = Token.objects.get_or_create(user=user)
         lifetime_words = user.account.lifetime_words
@@ -67,7 +67,7 @@ class LifetimeWordCountView(APIView):
         try:
             words_typed = int(words_typed)
         except:
-            return Response({"error": "invalid word count value"}, status=400)
+            return Response({"error": "Invalid word count value provided."}, status=400)
 
         account = request.user.account
         account.lifetime_words += words_typed

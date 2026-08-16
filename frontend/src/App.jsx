@@ -20,21 +20,21 @@ function App() {
             const data = await response.json();
             return data.words || [];
         } catch (err) {
-            console.error("Failed to fetch words from server:", err)
-            return []
+            console.error("Failed to fetch words from server:", err);
+            return [];
         }
     };
-    
+
     useEffect(() => {
         const initializeGame = async () => {
             const newWords = await fetchWords();
             if (newWords.length > 0) {
-                setWordQueue(newWords)
+                setWordQueue(newWords);
             }
         };
-    
+
         initializeGame();
-        
+
         const cachedUser = localStorage.getItem('inf_type_user');
         if (cachedUser) {
             setUser(cachedUser);
@@ -44,7 +44,7 @@ function App() {
         if (cachedWordCount) {
             setLifetimeWords(parseInt(cachedWordCount, 10));
         }
-    }, [])
+    }, []);
 
     const syncWordsToBackend = async () => {
         const token = localStorage.getItem('inf_type_token');
@@ -64,9 +64,9 @@ function App() {
                 body: JSON.stringify({ words_typed: wordCountToSend }),
                 keepalive: true
             });
-            
+
             const data = await response.json();
-            
+
             if (response.ok && data.lifetime_words !== undefined) {
                 setLifetimeWords(data.lifetime_words);
                 localStorage.setItem('inf_type_lifetime_words', data.lifetime_words);
@@ -82,10 +82,7 @@ function App() {
     useEffect(() => {
         const handleExit = () => syncWordsToBackend();
         window.addEventListener('beforeunload', handleExit);
-
-        return () => {
-            window.removeEventListener('beforeunload', handleExit);
-        };
+        return () => window.removeEventListener('beforeunload', handleExit);
     }, []);
 
     const handleInputChange = (e) => {
@@ -100,18 +97,18 @@ function App() {
                 setLifetimeWords(prev => prev + 1);
                 unsavedWordCount.current += 1;
 
-                if (unsavedWordCount.current >= 5) { // CHANGE 5 TO LARGER VALUE 
+                if (unsavedWordCount.current >= 10) { // possibly increase
                     syncWordsToBackend();
                 }
             }
 
             setPreviousWord(currentTargetWord);
             setUserInput('');
-            
+
             setWordQueue(prevQueue => {
                 const updatedQueue = prevQueue.slice(1);
-                
-                if (updatedQueue.length < 10) { // INCREASE BUFFER WAIT SIZE
+
+                if (updatedQueue.length < 20) {     // possibly increase
                     fetchWords().then(newWords => {
                         if (newWords.length > 0) {
                             setWordQueue(currentQueue => [...currentQueue, ...newWords]);
@@ -128,7 +125,7 @@ function App() {
     };
 
     const openModal = (modalName) => {
-        syncWordsToBackend(); 
+        syncWordsToBackend();
         setActiveModal(modalName);
     };
 
@@ -149,37 +146,32 @@ function App() {
         });
     };
 
-    const statLabel = user ? "Lifetime": "Session";
+    const statLabel = user ? "Lifetime" : "Session";
     const statValue = user ? lifetimeWords : sessionWords;
-    
+
     return (
         <div className="app-container" onClick={focusInput}>
-            
             <header className="game-header" onClick={(e) => e.stopPropagation()}>
                 <div className="logo">InfiniteType</div>
                 <div className="nav-buttons">
-                    <button onClick={() => openModal('leaderboard')}>Leaderboard</button>
-                    <button onClick={() => openModal('account')}>{user || 'Account'}</button>
+                    <button className="nav-btn" onClick={() => openModal('leaderboard')}>Leaderboard</button>
+                    <button className="nav-btn" onClick={() => openModal('account')}>{user || 'Account'}</button>
                 </div>
             </header>
 
-            <div className="stats-dashboard">
-                <div className="stat-box">
-                    <span className="stat-label">{statLabel} Total</span>
-                    <span className="stat-value">{statValue}</span>
-                </div>
-                
-                {/* {!user && (
-                    <p className="login-reminder">
-                        <button className="link-btn" onClick={() => openModal('account')}>
-                            Log in
-                        </button>{" "}
-                        to save your progress
-                    </p>
-                )} */}
-            </div>
-
             <main className="typing-area">
+                <div className="stats-dashboard">
+                    <div className="stat-box">
+                        <span className="stat-label">{statLabel} WORDS</span>
+                        <span className="stat-value">{statValue}</span>
+                    </div>
+                    {/* {!user && (
+                        <p className="login-reminder">
+                            <button className="link-btn" onClick={() => openModal('account')}>Log in</button> to save progress
+                        </p>
+                    )} */}
+                </div>
+
                 <input
                     ref={inputRef}
                     type="text"
@@ -188,6 +180,7 @@ function App() {
                     className="hidden-input"
                     autoFocus
                 />
+
                 <div className="wheel-container">
                     <div className="wheel-slot slot-side">{previousWord}</div>
                     <div className="wheel-slot slot-current">
@@ -199,7 +192,7 @@ function App() {
             </main>
 
             <footer className="game-footer">
-                <p>Press space after each word.</p>
+                <p>Press space after each word</p>
             </footer>
 
             <LeaderboardModal 
