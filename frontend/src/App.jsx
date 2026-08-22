@@ -11,6 +11,8 @@ function App() {
     const [previousWord, setPreviousWord] = useState('');
     const [activeModal, setActiveModal] = useState(null);
     const [user, setUser] = useState(null);
+    const [showGuestBanner, setShowGuestBanner] = useState(true);
+    
     const unsavedWordCount = useRef(0);
     const inputRef = useRef(null);
     
@@ -165,11 +167,6 @@ function App() {
                         <span className="stat-label">{statLabel} WORDS</span>
                         <span className="stat-value">{statValue}</span>
                     </div>
-                    {/* {!user && (
-                        <p className="login-reminder">
-                            <button className="link-btn" onClick={() => openModal('account')}>Log in</button> to save progress
-                        </p>
-                    )} */}
                 </div>
 
                 <input
@@ -194,6 +191,27 @@ function App() {
             <footer className="game-footer">
                 <p>Press space after each word</p>
             </footer>
+            
+            {!user && showGuestBanner && (
+                <div className="guest-toast" onClick={(e) => e.stopPropagation()}>
+                    <div className="guest-toast-text">
+                        <span className="guest-toast-dot"></span>
+                        <span>Login to save your progress!</span>
+                    </div>
+                    <div className="guest-toast-actions">
+                        <button className="toast-auth-btn" onClick={() => openModal('account')}>
+                            Log in
+                        </button>
+                        <button 
+                            className="toast-dismiss-btn" 
+                            onClick={() => setShowGuestBanner(false)}
+                            title="Dismiss"
+                        >
+                            &times;
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <LeaderboardModal 
                 isOpen={activeModal === 'leaderboard'} 
@@ -206,6 +224,7 @@ function App() {
                 user={user}
                 setUser={setUser}
                 setLifetimeWords={setLifetimeWords}
+                setSessionWords={setSessionWords}
             />
         </div>
     );

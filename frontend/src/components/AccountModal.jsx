@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './AccountModal.css';
 
-function AccountModal({ isOpen, onClose, user, setUser, setLifetimeWords }) {
+function AccountModal({ isOpen, onClose, user, setUser, setLifetimeWords, setSessionWords }) {
     const [authMode, setAuthMode] = useState('login');
     const [usernameInput, setUsernameInput] = useState('');
     const [passwordInput, setPasswordInput] = useState('');
@@ -77,6 +77,7 @@ function AccountModal({ isOpen, onClose, user, setUser, setLifetimeWords }) {
         localStorage.removeItem('inf_type_lifetime_words');
         setUser(null);
         setLifetimeWords(0);
+        setSessionWords(0);
         clearForm();
         onClose();
     };
